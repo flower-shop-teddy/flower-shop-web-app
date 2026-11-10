@@ -1,0 +1,36 @@
+# CI: lint, kiểm tra kiểu, test, build; và kiểm tra commit message (dùng chung với các service).
+name: CI
+
+on:
+  push:
+    branches: [dev]
+  pull_request:
+    branches: [dev, production]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    # Tên check phải trùng ruleset production chép từ repo service mẫu ("ci / build")
+    name: ci / build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Kiểm tra lỗ hổng thư viện chạy thật (bỏ qua devDependencies)
+        run: npm audit --omit=dev --audit-level=high
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+
+  commit-lint:
+    if: github.event_name == 'push' || github.base_ref == 'dev'
+    permissions:
+      contents: read
+    uses: flower-shop-teddy/flower-shop-platform/.github/workflows/commit-lint.yml@dev
