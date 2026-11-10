@@ -10,6 +10,19 @@ Một ứng dụng phục vụ hai nhóm người dùng, chia theo loại tài k
 | Khách hàng                  | `/checkout`, `/account/**` | Giỏ hàng, đặt đơn (chọn địa chỉ, ngày, khung giờ, lời nhắn thiệp), hồ sơ, sổ địa chỉ, đơn của tôi, hủy đơn |
 | Nhân viên / quản lý / admin | `/admin/**`                | Tổng quan, xử lý đơn theo state machine, danh mục hoa, tồn kho theo lô, khách hàng, nhân viên & phân quyền |
 
+## Hai cách chạy cả frontend + backend
+
+|          | Cách 1: phát triển (code đang sửa)     | Cách 2: bản đã release (image GHCR)                                                    |
+| -------- | -------------------------------------- | -------------------------------------------------------------------------------------- |
+| Backend  | `./run-local.sh` ở workspace           | `docker compose -f docker-compose.app.yml up -d --wait` ở workspace (bật luôn web-app) |
+| Frontend | `cd web-app && nvm use && npm run dev` | có sẵn trong compose                                                                   |
+| Mở       | http://localhost:5173                  | http://localhost:3000                                                                  |
+| Tắt      | `Ctrl+C` ở cửa sổ `run-local.sh`       | `docker compose -f docker-compose.app.yml down`                                        |
+
+Hai cách dùng chung cổng 8080–8085/8761: chỉ bật một trong hai. Cả hai dùng chung database Postgres
+(container `flowershop-postgres`), nên tài khoản và dữ liệu đã tạo ở cách này vẫn còn khi chuyển sang cách kia.
+Cách 2 cần các khóa trong `.env` của workspace (`JWT_PRIVATE_KEY`, `JWT_KEY_ID`, `ORDER_SERVICE_CLIENT_SECRET`...), xem `.env.example`.
+
 ## Chạy ở máy
 
 Cần **Node 22** (`.nvmrc`). Backend phải chạy sẵn (`../run-local.sh`), gateway ở `localhost:8080`.
